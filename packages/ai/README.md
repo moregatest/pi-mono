@@ -80,7 +80,7 @@ Run any GGUF model locally via [llama.cpp](https://github.com/ggml-org/llama.cpp
 1. Start llama-server with your GGUF model:
 
 ```bash
-llama-server -m your-model.gguf -ngl 99 -fa on -c 4096 --port 8080
+llama-server -m your-model.gguf -ngl 99 -fa on -c 128000 --port 8080
 ```
 
 2. Use the `llama-server` provider:
@@ -119,6 +119,31 @@ Tested on MacBook Pro M4 Max 64GB with [LFM2-24B-A2B](https://www.liquid.ai/blog
 | Average latency | ~542ms per tool call |
 | Memory footprint | ~14.5GB (Q4_K_M) |
 | Model parameters | 23.8B (MoE, 4 active of 64 experts) |
+
+### Memory & Context Length Guide
+
+LFM2-24B-A2B has a hybrid architecture — only 10 of 40 layers use attention (the rest are recurrent/SSM), making KV cache extremely efficient at ~20KB per token. This means large context windows are practical even on consumer hardware:
+
+| Unified Memory | Model Weights (Q4_K_M) | Available for KV Cache | Max Context (`-c`) | Notes |
+|----------------|------------------------|------------------------|--------------------|-------|
+| 24 GB | ~14 GB | ~8 GB | 128K | Tight — use `-ngl 99 --n-parallel 1` |
+| 36 GB | ~14 GB | ~20 GB | 128K | Comfortable with `--n-parallel 2` |
+| 64 GB | ~14 GB | ~35 GB | 128K | Full context + `--n-parallel 4` easily |
+| 128 GB | ~14 GB | ~90 GB | 128K | Can run Q8_0 (~25GB) or multiple models |
+
+**Key insight:** The 128K trained context only requires ~2.5GB of KV cache, so even 24GB machines can use the full context window. The bottleneck is model weights, not context length.
+
+**Recommended launch command for 64GB machines:**
+
+```bash
+llama-server -m LFM2-24B-A2B-Q4_K_M.gguf -ngl 99 -fa on -c 128000 --n-parallel 4 --port 8080
+```
+
+Flags:
+- `-ngl 99`: offload all layers to GPU (Metal)
+- `-fa on`: enable flash attention
+- `-c 128000`: use full 128K context window
+- `--n-parallel 4`: allow 4 concurrent requests
 
 ## Installation
 
