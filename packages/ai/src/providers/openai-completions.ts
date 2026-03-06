@@ -331,12 +331,15 @@ function createClient(
 	optionsHeaders?: Record<string, string>,
 ) {
 	if (!apiKey) {
-		if (!process.env.OPENAI_API_KEY) {
+		if (model.provider === "llama-server") {
+			apiKey = "no-key-needed";
+		} else if (!process.env.OPENAI_API_KEY) {
 			throw new Error(
 				"OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass it as an argument.",
 			);
+		} else {
+			apiKey = process.env.OPENAI_API_KEY;
 		}
-		apiKey = process.env.OPENAI_API_KEY;
 	}
 
 	const headers = { ...model.headers };
@@ -745,9 +748,12 @@ function detectCompat(model: Model<"openai-completions">): Required<OpenAIComple
 	const provider = model.provider;
 	const baseUrl = model.baseUrl;
 
+	const isLlamaServer = provider === "llama-server";
+
 	const isZai = provider === "zai" || baseUrl.includes("api.z.ai");
 
 	const isNonStandard =
+		isLlamaServer ||
 		provider === "cerebras" ||
 		baseUrl.includes("cerebras.ai") ||
 		provider === "xai" ||
@@ -758,7 +764,7 @@ function detectCompat(model: Model<"openai-completions">): Required<OpenAIComple
 		provider === "opencode" ||
 		baseUrl.includes("opencode.ai");
 
-	const useMaxTokens = baseUrl.includes("chutes.ai");
+	const useMaxTokens = baseUrl.includes("chutes.ai") || isLlamaServer;
 
 	const isGrok = provider === "xai" || baseUrl.includes("api.x.ai");
 	const isGroq = provider === "groq" || baseUrl.includes("groq.com");
@@ -776,7 +782,7 @@ function detectCompat(model: Model<"openai-completions">): Required<OpenAIComple
 	return {
 		supportsStore: !isNonStandard,
 		supportsDeveloperRole: !isNonStandard,
-		supportsReasoningEffort: !isGrok && !isZai,
+		supportsReasoningEffort: !isGrok && !isZai && !isLlamaServer,
 		reasoningEffortMap,
 		supportsUsageInStreaming: true,
 		maxTokensField: useMaxTokens ? "max_tokens" : "max_completion_tokens",
@@ -786,7 +792,7 @@ function detectCompat(model: Model<"openai-completions">): Required<OpenAIComple
 		thinkingFormat: isZai ? "zai" : "openai",
 		openRouterRouting: {},
 		vercelGatewayRouting: {},
-		supportsStrictMode: true,
+		supportsStrictMode: !isLlamaServer,
 	};
 }
 

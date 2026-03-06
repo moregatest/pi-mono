@@ -4393,6 +4393,26 @@ export const MODELS = {
 			maxTokens: 32768,
 		} satisfies Model<"anthropic-messages">,
 	},
+	"llama-server": {
+		"custom": {
+			id: "custom",
+			name: "Local Model (llama-server)",
+			api: "openai-completions",
+			provider: "llama-server",
+			baseUrl: "http://127.0.0.1:8080/v1",
+			compat: {"supportsStore":false,"supportsDeveloperRole":false,"supportsReasoningEffort":false,"supportsUsageInStreaming":true,"maxTokensField":"max_tokens","supportsStrictMode":false},
+			reasoning: false,
+			input: ["text"],
+			cost: {
+				input: 0,
+				output: 0,
+				cacheRead: 0,
+				cacheWrite: 0,
+			},
+			contextWindow: 128000,
+			maxTokens: 4096,
+		} satisfies Model<"openai-completions">,
+	},
 	"minimax": {
 		"MiniMax-M2": {
 			id: "MiniMax-M2",
