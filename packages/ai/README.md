@@ -7,6 +7,7 @@ Unified LLM API with automatic model discovery, provider configuration, token an
 ## Table of Contents
 
 - [Supported Providers](#supported-providers)
+- [llama-server (Local Models)](#llama-server-local-models)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Tools](#tools)
@@ -67,7 +68,57 @@ Unified LLM API with automatic model discovery, provider configuration, token an
 - **OpenCode Zen**
 - **OpenCode Go**
 - **Kimi For Coding** (Moonshot AI, uses Anthropic-compatible API)
+- **llama-server** (local GGUF models via llama.cpp, no API key needed)
 - **Any OpenAI-compatible API**: Ollama, vLLM, LM Studio, etc.
+
+## llama-server (Local Models)
+
+Run any GGUF model locally via [llama.cpp](https://github.com/ggml-org/llama.cpp) server with full tool calling support. No cloud, no API keys — everything stays on your machine.
+
+### Setup
+
+1. Start llama-server with your GGUF model:
+
+```bash
+llama-server -m your-model.gguf -ngl 99 -fa on -c 4096 --port 8080
+```
+
+2. Use the `llama-server` provider:
+
+```typescript
+import { getModel } from "@mariozechner/pi-ai";
+import { complete } from "@mariozechner/pi-ai";
+
+const model = getModel("llama-server", "custom");
+const response = await complete(model, {
+  messages: [{ role: "user", content: "Hello!" }],
+});
+```
+
+Or with the pi CLI:
+
+```bash
+pi --provider llama-server --model custom
+```
+
+The default base URL is `http://127.0.0.1:8080/v1`. Override with `LLAMA_SERVER_BASE_URL` env var if needed.
+
+### Tool Calling Test Results (LFM2-24B-A2B Q4_K_M)
+
+Tested on MacBook Pro M4 Max 64GB with [LFM2-24B-A2B](https://www.liquid.ai/blog/no-cloud-tool-calling-agents-consumer-hardware-lfm2-24b-a2b) (Q4_K_M quantization, ~13GB), 15 tools across 5 categories, 30 test cases:
+
+| Level | Description | Pass Rate |
+|-------|-------------|-----------|
+| L1: Single tool selection | Pick the correct tool from 15 options | 80% (8/10) |
+| L2: Parameter filling | Correct tool + correct parameters | 75% (7.5/10) |
+| L3: First-step selection | Correct first tool in multi-step chains | 90% (9/10) |
+| **Overall** | | **81.7%** |
+
+| Metric | Value |
+|--------|-------|
+| Average latency | ~542ms per tool call |
+| Memory footprint | ~14.5GB (Q4_K_M) |
+| Model parameters | 23.8B (MoE, 4 active of 64 experts) |
 
 ## Installation
 
