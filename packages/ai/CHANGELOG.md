@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `llama-server` as a local model provider for running any GGUF model via llama-server's OpenAI-compatible API. Reuses the `openai-completions` stream with compat settings for no API key, `max_tokens`, and no strict mode. Includes a generic `custom` model entry at `http://127.0.0.1:8080/v1` with zero cost.
+
 ## [0.56.2] - 2026-03-05
 
 ### Added
