@@ -31,6 +31,12 @@ Tools for building AI agents and managing LLM deployments.
 | **[@mariozechner/pi-web-ui](packages/web-ui)** | Web components for AI chat interfaces |
 | **[@mariozechner/pi-pods](packages/pods)** | CLI for managing vLLM deployments on GPU pods |
 
+## Docs
+
+| Document | Description |
+|----------|-------------|
+| [Qwen3.5-35B-A3B Local Benchmark](docs/2026-03-16-qwen35-35b-a3b-local-benchmark.md) | Local deployment test report: llama-server + M4 Max 64GB, context window stress test, vision, tool calling, optimal config |
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [AGENTS.md](AGENTS.md) for project-specific rules (for both humans and agents).
