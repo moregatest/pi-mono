@@ -36,6 +36,7 @@ Tools for building AI agents and managing LLM deployments.
 | Document | Description |
 |----------|-------------|
 | [Qwen3.5-35B-A3B Local Benchmark](docs/2026-03-16-qwen35-35b-a3b-local-benchmark.md) | Local deployment test report: llama-server + M4 Max 64GB, context window stress test, vision, tool calling, optimal config |
+| [OpenClaw Local Model Integration](docs/2026-03-19-openclaw-local-model-integration.md) | OpenClaw Gateway 整合本地 Qwen 模型：配置方式、pi vs OpenClaw 差異、踩坑紀錄 |
 
 ## Contributing
 
