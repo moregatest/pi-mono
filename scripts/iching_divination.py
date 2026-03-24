@@ -181,6 +181,22 @@ def cast_hexagram() -> dict:
 
     changing_positions = [i + 1 for i, line in enumerate(lines) if line["changing"]]
 
+    # ── 錯卦（陰陽全翻）──
+    cuo_lower = lower_bits ^ 7
+    cuo_upper = upper_bits ^ 7
+    cuo_num   = TABLE[cuo_lower][cuo_upper]
+
+    # ── 綜卦（六爻倒序）──
+    rev_lines  = lines[::-1]
+    zong_lower = lines_to_trigram(rev_lines[0:3])
+    zong_upper = lines_to_trigram(rev_lines[3:6])
+    zong_num   = TABLE[zong_lower][zong_upper]
+
+    # ── 互卦（取第2-4爻為下卦，第3-5爻為上卦；索引從0起）──
+    hu_lower = lines_to_trigram(lines[1:4])
+    hu_upper = lines_to_trigram(lines[2:5])
+    hu_num   = TABLE[hu_lower][hu_upper]
+
     return {
         "values": values,
         "lines": lines,
@@ -197,6 +213,19 @@ def cast_hexagram() -> dict:
         "zhi_name": HEXAGRAM_NAMES[zhi_num],
         "zhi_lower_name": TRIGRAM_NAMES[new_lower_bits],
         "zhi_upper_name": TRIGRAM_NAMES[new_upper_bits],
+        # 四法擴充
+        "cuo_num":        cuo_num,
+        "cuo_name":       HEXAGRAM_NAMES[cuo_num],
+        "cuo_lower_name": TRIGRAM_NAMES[cuo_lower],
+        "cuo_upper_name": TRIGRAM_NAMES[cuo_upper],
+        "zong_num":        zong_num,
+        "zong_name":       HEXAGRAM_NAMES[zong_num],
+        "zong_lower_name": TRIGRAM_NAMES[zong_lower],
+        "zong_upper_name": TRIGRAM_NAMES[zong_upper],
+        "hu_num":        hu_num,
+        "hu_name":       HEXAGRAM_NAMES[hu_num],
+        "hu_lower_name": TRIGRAM_NAMES[hu_lower],
+        "hu_upper_name": TRIGRAM_NAMES[hu_upper],
     }
 
 
@@ -234,6 +263,21 @@ def display(result: dict) -> None:
         print(f"          {result['zhi_upper_name']}上  {result['zhi_lower_name']}下")
     else:
         print("\n【變爻】  無（六爻皆靜 以本卦卦辭為主）")
+        print(f"\n【之卦】  同本卦（無動爻）")
+
+    print("\n" + "─" * 44)
+    print("【四法速覽】\n")
+    print(f"  本卦  第 {result['hexagram_num']:02d} 卦  《{result['hexagram_name']}》"
+          f"  （{result['upper_name']}上 {result['lower_name']}下）  ← 現狀")
+    print(f"  錯卦  第 {result['cuo_num']:02d} 卦  《{result['cuo_name']}》"
+          f"  （{result['cuo_upper_name']}上 {result['cuo_lower_name']}下）  ← 對立面／隱藏動機")
+    print(f"  綜卦  第 {result['zong_num']:02d} 卦  《{result['zong_name']}》"
+          f"  （{result['zong_upper_name']}上 {result['zong_lower_name']}下）  ← 對方視角")
+    print(f"  互卦  第 {result['hu_num']:02d} 卦  《{result['hu_name']}》"
+          f"  （{result['hu_upper_name']}上 {result['hu_lower_name']}下）  ← 內在核心／過程")
+    if result["changing_positions"]:
+        print(f"  之卦  第 {result['zhi_num']:02d} 卦  《{result['zhi_name']}》"
+              f"  （{result['zhi_upper_name']}上 {result['zhi_lower_name']}下）  ← 趨勢／結果")
 
     print("\n" + "═" * 44 + "\n")
 
